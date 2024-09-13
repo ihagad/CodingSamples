@@ -1,0 +1,42 @@
+//Function code snippets
+//Velo API
+//Project Link: https://www.besomeone.vip/coach-login
+
+//Login Directs to Profile Editing Page
+
+export async function button6_click(event) {
+    let discSpace = $w('#input1').value.indexOf(" ");
+    let discUsername;
+    let bdaySpace = $w('#input2').value.indexOf(" ");
+    let bday;
+
+    if(discSpace != -1){
+        discUsername = $w('#input1').value.substr(0,discSpace);
+    }else{
+        discUsername = $w('#input1').value;
+    }
+
+    if(bdaySpace != -1){
+        bday = $w('#input2').value.substr(0,bdaySpace);
+    }else{
+        bday = $w('#input2').value;
+    }
+
+    var queryResults;
+
+    queryResults = await wixData.query("Team1")
+        .eq("discordUsername", discUsername)
+        .eq("birthDate", bday)
+        .find();
+
+    if (queryResults.length > 0) {
+        session.setItem("discUsername", discUsername);
+        wixLocation.to("");
+    }else{
+        $w("#group1").show();
+
+        $w('#text43').onClick((event) => {
+            wixLocation.to("");
+        });
+    }
+}
