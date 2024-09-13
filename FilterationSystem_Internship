@@ -1,0 +1,142 @@
+//Function code snippets
+//Velo API
+//Project Link: https://www.besomeone.vip/coaches
+
+//caoch name input filter function
+export async function input1_input(event) {
+    currentPage = 1;
+    $w("#switch1").disable();
+    $w("#text35").hide();
+    $w("#radioGroup1").value = undefined;
+    $w("#dropdown1").resetValidityIndication;
+    $w("#dropdown1").value = undefined;
+    $w("#dropdown1").resetValidityIndication;
+    session.removeItem("genderOptions");
+    session.removeItem("ageOptions");
+
+    let textInput = $w("#input1").value;
+
+    textInput = textInput.substring(0, 1).toUpperCase() + textInput.substring(1, textInput.length).toLowerCase();
+
+    if ((storedProfiles == null || storedProfiles == undefined) || ((storedProfiles != null || storedProfiles != undefined) && textInput != storedText)) {
+        if (textInput.length > 0 && textInput != "") {
+            queryResults = await wixData.query("Team1")
+                .startsWith("title", textInput)
+                .find();
+
+            // Shuffle the items
+            for (let i = queryResults.items.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [queryResults.items[i], queryResults.items[j]] = [queryResults.items[j], queryResults.items[i]];
+            }
+
+            queryResults.items.sort((a, b) => a.age - b.age);
+
+            if (queryResults.items.length > 0) {
+                $w("#teamRepeater").expand();
+                setTimeout(() => {
+                    $w("#teamRepeater").data = queryResults.items.slice(0, itemsPerPage);
+                }, 50);
+
+                profiles = JSON.stringify(queryResults);
+
+                if (queryResults.items.length > itemsPerPage) {
+                    $w('#button5').expand();
+                } else {
+                    $w('#button5').collapse();
+                }
+
+                currentPage = 1; // Reset the current page
+            } else {
+                $w("#teamRepeater").collapse();
+                $w("#text35").show();
+
+                $w('#button5').collapse();
+            }
+        } else {
+            storedProfiles = undefined;
+            allCoaches();
+        }
+    } else {
+        queryResults = JSON.parse(storedProfiles);
+        setTimeout(() => {
+            $w('#teamRepeater').data = queryResults.items.slice(0, itemsPerPage);
+        }, 100);
+        if (queryResults.items.length > itemsPerPage) {
+            $w('#button5').expand();
+        } else {
+            $w('#button5').collapse();
+        }
+        profiles = JSON.stringify(queryResults);
+    }
+
+    $w('#button5').onClick((event) => {
+        currentPage++;
+        const startIndex = (currentPage - 1) * itemsPerPage;
+
+        // Fetch the next page of items from the filtered set
+        const nextPageItems = queryResults.items.slice(startIndex, startIndex + itemsPerPage);
+
+        // Update repeater data with the next page of filtered items
+        $w("#teamRepeater").data = $w("#teamRepeater").data.concat(nextPageItems);
+
+        profiles = JSON.stringify(queryResults);
+
+        if (startIndex + itemsPerPage >= queryResults.items.length) {
+            $w('#button5').collapse();
+            b5Open = 0;
+        }
+    });
+
+    $w("#button4").onClick(function () {
+        session.clear();
+        memory.clear();
+        memory.setItem("profiles", profiles);
+        storedProfiles = memory.getItem("profiles");
+        session.setItem("b5Open", b5Open);
+        session.setItem("textInput", textInput);
+
+        $w("#radioGroup1").value = undefined;
+        $w("#dropdown1").resetValidityIndication;
+        $w("#dropdown1").value = undefined;
+        $w("#dropdown1").resetValidityIndication;
+        session.removeItem("genderOptions");
+        session.removeItem("ageOptions");
+    });
+
+    $w('#teamImage').onClick(function () {
+        session.clear();
+        memory.clear();
+        memory.setItem("profiles", profiles);
+        storedProfiles = memory.getItem("profiles");
+        session.setItem("b5Open", b5Open);
+        session.setItem("textInput", textInput);
+
+        $w("#radioGroup1").value = undefined;
+        $w("#dropdown1").resetValidityIndication;
+        $w("#dropdown1").value = undefined;
+        $w("#dropdown1").resetValidityIndication;
+        session.removeItem("genderOptions");
+        session.removeItem("ageOptions");
+    });
+
+    $w("#teamImage").onClick((event) => {
+
+        let pageX = event.pageX;
+        let pageY = event.pageY;
+
+        session.setItem("pageX", pageX);
+        session.setItem("pageY", pageY);
+    });
+
+    $w("#button4").onClick((event) => {
+
+        let pageX = event.pageX;
+        let pageY = event.pageY;
+
+        session.setItem("pageX", pageX);
+        session.setItem("pageY", pageY);
+    });
+}
+
+
